@@ -30115,31 +30115,32 @@ const s4 = "https://qqfvezowcmcgpsvmuhuw.supabase.co",
         [n, r] = S.useState(null),
         [o, a] = S.useState(!1);
 
-    S.useEffect(() => {
-        const fetchEarnings = async () => {
-            a(!0);
-            try {
-                const response = await fetch("https://bags.fm/H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS");
-                if (!response.ok) throw new Error("Failed to fetch");
-                const html = await response.text();
-                const earningsMatch = html.match(/earnings[\s\S]*?\$([\d,]+\.?\d*)/i);
-                let earningsValue = 16787.50;
-                if (earningsMatch) {
-                    earningsValue = parseFloat(earningsMatch[1].replace(/,/g, ''));
-                }
-                r({ current_amount: earningsValue });
-            } catch (err) {
-                console.error(err);
-                r({ current_amount: 16787.50 });
-            } finally {
-                a(!1);
+    const fetchEarnings = async () => {
+    a(!0);
+    try {
+        const tokenAddress = "H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS";
+        const apiUrl = `https://bags.fm/api/fees/${tokenAddress}`;
+        
+        // Use allorigins proxy
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
+        
+        const response = await fetch(proxyUrl, {
+            headers: {
+                "Authorization": `Bearer bags_prod_ainU7Tcp_MsQ4KIO2pu49_bh9AI0KPpH0KPzFZyprZ0`
             }
-        };
-        fetchEarnings();
-        const interval = setInterval(fetchEarnings, 120000);
-        return () => clearInterval(interval);
-    }, []);
-
+        });
+        
+        if (!response.ok) throw new Error("API failed");
+        const data = await response.json();
+        const earningsValue = data?.lifetimeFees?.usd || data?.earnings || 16787.50;
+        r({ current_amount: earningsValue });
+    } catch (err) {
+        console.error(err);
+        r({ current_amount: 0 });
+    } finally {
+        a(!1);
+    }
+};
     return h.jsx("section", {
         ref: e,
         className: "relative py-12 px-6",
