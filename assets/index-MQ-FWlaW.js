@@ -30109,43 +30109,57 @@ const s4 = "https://qqfvezowcmcgpsvmuhuw.supabase.co",
         }
     }),
     o4 = "",
-  a4 = () => {
+ a4 = () => {
     const e = S.useRef(null),
         t = bs(e, { once: !0, margin: "-100px" }),
         [n, r] = S.useState(null),
         [o, a] = S.useState(!1);
 
     S.useEffect(() => {
-       const fetchFees = async () => {
-    try {
-        const feesUrl = "https://api2.bags.fm/api/v1/token-launch/lifetime-fees?tokenMint=H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS";
-        // Use a proxy to bypass CORS
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(feesUrl)}`;
-        const feesResponse = await fetch(proxyUrl);
-        const feesData = await feesResponse.json();
+        const fetchFees = async () => {
+            a(!0);
+            try {
+                // Use CORS proxy for Bags API
+                const feesUrl = "https://api2.bags.fm/api/v1/token-launch/lifetime-fees?tokenMint=H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS";
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(feesUrl)}`;
+                
+                const feesResponse = await fetch(proxyUrl);
+                if (!feesResponse.ok) throw new Error("Failed to fetch fees");
+                const feesData = await feesResponse.json();
+                
+                if (feesData.success) {
+                    // Convert lamports to SOL (1 SOL = 1,000,000,000 lamports)
+                    const lamports = parseFloat(feesData.response);
+                    const solAmount = lamports / 1000000000;
+                    
+                    // Get current SOL price from CoinGecko (no CORS)
+                    const priceResponse = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
+                    const priceData = await priceResponse.json();
+                    const solPriceUsd = priceData.solana?.usd || 85;
+                    const usdAmount = solAmount * solPriceUsd;
+                    
+                    r({
+                        solAmount: solAmount,
+                        usdAmount: usdAmount,
+                        solPrice: solPriceUsd,
+                        lamports: lamports,
+                        lastUpdated: Date.now()
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to fetch fees:", err);
+                // Keep existing data if available, don't clear on error
+            } finally {
+                a(!1);
+            }
+        };
         
-        if (feesData.success) {
-            const lamports = parseFloat(feesData.response);
-            const solAmount = lamports / 1000000000;
-            
-            // Get SOL price
-            const priceResponse = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
-            const priceData = await priceResponse.json();
-            const usdAmount = solAmount * priceData.solana?.usd;
-            
-            // Update your component state
-            r({
-                solAmount: solAmount,
-                usdAmount: usdAmount
-            });
-        }
-    } catch (err) {
-        console.error("Failed:", err);
-    }
-};
-        
+        // Fetch immediately
         fetchFees();
-        const interval = setInterval(fetchFees, 60000);
+        
+        // Then fetch every 6 hours (21600000 milliseconds)
+        const interval = setInterval(fetchFees, 21600000);
+        
         return () => clearInterval(interval);
     }, []);
 
@@ -30191,74 +30205,38 @@ const s4 = "https://qqfvezowcmcgpsvmuhuw.supabase.co",
                                         h.jsxs("div", {
                                             className: "flex items-center gap-3 min-w-0",
                                             children: [
-                                                h.jsx("div", {
-                                                    className: "w-10 h-10 bg-forest rounded-full flex items-center justify-center text-white text-xl shrink-0",
-                                                    children: "🐵"
-                                                }),
-                                                h.jsxs("div", {
-                                                    className: "min-w-0",
-                                                    children: [
-                                                        h.jsx("p", { className: "text-[10px] sm:text-xs tracking-[0.3em] uppercase text-muted-foreground", children: "Total raised for" }),
-                                                        h.jsx("p", { className: "text-base sm:text-lg font-bold tracking-tight text-forest-dark", children: "Ichikawa Zoo" })
-                                                    ]
-                                                })
+                                                h.jsx("div", { className: "w-10 h-10 bg-forest rounded-full flex items-center justify-center text-white text-xl shrink-0", children: "🐵" }),
+                                                h.jsxs("div", { className: "min-w-0", children: [
+                                                    h.jsx("p", { className: "text-[10px] sm:text-xs tracking-[0.3em] uppercase text-muted-foreground", children: "Total raised for" }),
+                                                    h.jsx("p", { className: "text-base sm:text-lg font-bold tracking-tight text-forest-dark", children: "Ichikawa Zoo" })
+                                                ] })
                                             ]
                                         }),
-                                        h.jsxs("div", {
-                                            className: "flex items-center gap-2 shrink-0",
-                                            children: [
-                                                h.jsxs("span", { className: "relative flex h-2.5 w-2.5 transition-transform duration-300", children: [
-                                                    h.jsx("span", { className: "animate-ping absolute inline-flex h-full w-full rounded-full bg-mushroom opacity-75" }),
-                                                    h.jsx("span", { className: "relative inline-flex rounded-full h-2.5 w-2.5 bg-mushroom" })
-                                                ] }),
-                                                h.jsx("span", { className: "text-[10px] md:text-xs tracking-[0.3em] uppercase text-mushroom font-semibold", children: "Live" })
-                                            ]
-                                        })
+                                        h.jsxs("div", { className: "flex items-center gap-2 shrink-0", children: [
+                                            h.jsxs("span", { className: "relative flex h-2.5 w-2.5 transition-transform duration-300", children: [
+                                                h.jsx("span", { className: "animate-ping absolute inline-flex h-full w-full rounded-full bg-mushroom opacity-75" }),
+                                                h.jsx("span", { className: "relative inline-flex rounded-full h-2.5 w-2.5 bg-mushroom" })
+                                            ] }),
+                                            h.jsx("span", { className: "text-[10px] md:text-xs tracking-[0.3em] uppercase text-mushroom font-semibold", children: "Live" })
+                                        ] })
                                     ]
                                 }),
-                                h.jsx("p", {
-                                    className: "text-center text-[10px] sm:text-xs md:text-sm tracking-[0.3em] uppercase text-muted-foreground mb-3 sm:mb-4",
-                                    children: "Lifetime fees donated (100% to charity)"
-                                }),
-                                h.jsxs("div", {
-                                    className: "text-center mb-6 sm:mb-8",
-                                    children: [
-                                        h.jsxs("div", {
-                                            className: "inline-flex items-baseline gap-1 max-w-full flex-wrap justify-center",
-                                            children: [
-                                                h.jsx("span", { className: "text-3xl sm:text-4xl md:text-6xl font-bold text-cardboard", children: "$" }),
-                                                h.jsx("span", {
-                                                    className: "text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight bg-gradient-to-b from-forest-dark via-forest to-mushroom bg-clip-text text-transparent tabular-nums transition-all duration-500 break-all",
-                                                    children: o ? "..." : ((n == null ? void 0 : n.usdAmount) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                                                })
-                                            ]
-                                        }),
-                                        h.jsxs("div", {
-                                            className: "mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs sm:text-sm text-muted-foreground",
-                                            children: [
-                                                h.jsx("span", { className: "tabular-nums", children: `${((n == null ? void 0 : n.solAmount) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SOL` }),
-                                                h.jsx("span", { className: "tracking-wider", children: "@ $" + ((n == null ? void 0 : n.solPrice) || 0).toLocaleString() }),
-                                                h.jsx("span", { className: "tracking-wider", children: "→ Ichikawa Zoo, Japan" })
-                                            ]
-                                        })
-                                    ]
-                                }),
-                                h.jsxs("div", {
-                                    className: "flex flex-col sm:flex-row gap-3 max-w-md mx-auto",
-                                    children: [
-                                        h.jsxs("a", {
-                                            href: "https://bags.fm/H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS",
-                                            target: "_blank",
-                                            rel: "noopener noreferrer",
-                                            className: "flex-1 px-6 py-4 bg-mushroom text-cream font-semibold tracking-wider uppercase text-sm hover:bg-mushroom/80 transition-colors text-center rounded-full",
-                                            children: ["View on Bags.fm", h.jsx("span", { className: "ml-2", children: "🔗" })]
-                                        })
-                                    ]
-                                }),
-                                h.jsx("p", {
-                                    className: "text-center text-[10px] sm:text-xs text-muted-foreground mt-6 sm:mt-8 tracking-wide",
-                                    children: `100% of creator fees donated • Updated: ${new Date().toLocaleTimeString()}`
-                                })
+                                h.jsx("p", { className: "text-center text-[10px] sm:text-xs md:text-sm tracking-[0.3em] uppercase text-muted-foreground mb-3 sm:mb-4", children: "Lifetime fees donated (100% to charity)" }),
+                                h.jsxs("div", { className: "text-center mb-6 sm:mb-8", children: [
+                                    h.jsxs("div", { className: "inline-flex items-baseline gap-1 max-w-full flex-wrap justify-center", children: [
+                                        h.jsx("span", { className: "text-3xl sm:text-4xl md:text-6xl font-bold text-cardboard", children: "$" }),
+                                        h.jsx("span", { className: "text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight bg-gradient-to-b from-forest-dark via-forest to-mushroom bg-clip-text text-transparent tabular-nums transition-all duration-500 break-all", children: o ? "..." : ((n == null ? void 0 : n.usdAmount) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) })
+                                    ] }),
+                                    h.jsxs("div", { className: "mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs sm:text-sm text-muted-foreground", children: [
+                                        h.jsx("span", { className: "tabular-nums", children: `${((n == null ? void 0 : n.solAmount) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SOL` }),
+                                        h.jsx("span", { className: "tracking-wider", children: "@ $" + ((n == null ? void 0 : n.solPrice) || 0).toLocaleString() }),
+                                        h.jsx("span", { className: "tracking-wider", children: "→ Ichikawa Zoo, Japan" })
+                                    ] })
+                                ] }),
+                                h.jsxs("div", { className: "flex flex-col sm:flex-row gap-3 max-w-md mx-auto", children: [
+                                    h.jsxs("a", { href: "https://bags.fm/H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS", target: "_blank", rel: "noopener noreferrer", className: "flex-1 px-6 py-4 bg-mushroom text-cream font-semibold tracking-wider uppercase text-sm hover:bg-mushroom/80 transition-colors text-center rounded-full", children: ["View on Bags.fm", h.jsx("span", { className: "ml-2", children: "🔗" })] })
+                                ] }),
+                                h.jsx("p", { className: "text-center text-[10px] sm:text-xs text-muted-foreground mt-6 sm:mt-8 tracking-wide", children: `100% of creator fees donated • Updates every 6 hours • Last updated: ${n?.lastUpdated ? new Date(n.lastUpdated).toLocaleTimeString() : '---'}` })
                             ]
                         })
                     ]
