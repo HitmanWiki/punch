@@ -31241,7 +31241,7 @@ const u4 = ({
                         children: "Join the Sanctuary 🌿"
                     }), h.jsx("p", {
                         className: "font-body text-lg text-muted-foreground max-w-xl mx-auto",
-                        children: "Be part of the coziest community on Solana"
+                        children: "Be part of the coziest community On Bags"
                     })]
                 }), h.jsx("div", {
                     className: "flex flex-col md:flex-row items-center justify-center gap-6",
@@ -31351,7 +31351,7 @@ const u4 = ({
                             className: "w-5 h-5 text-mushroom fill-current animate-float-gentle"
                         }), h.jsx("span", {
                             className: "font-storybook text-cardboard-dark",
-                            children: "Be part of the coziest community on Solana"
+                            children: "Be part of the coziest community On Bags"
                         }), h.jsx(Ot, {
                             className: "w-5 h-5 text-mushroom fill-current animate-float-gentle",
                             style: {
@@ -31579,7 +31579,7 @@ const u4 = ({
                 children: "Made with 💕 for Punch & his plushie"
             }), h.jsx("p", {
                 className: "font-body text-sm text-muted-foreground max-w-xl mx-auto mb-6",
-                children: "$PUNCH is a meme coin on Solana. This is not financial advice. Do your own research before investing."
+                children: "$PUNCH is a meme coin On Bags. This is not financial advice. Do your own research before investing."
             }), h.jsxs("div", {
                 className: "flex items-center justify-center gap-3 text-muted-foreground text-sm mb-3",
                 // children: 
