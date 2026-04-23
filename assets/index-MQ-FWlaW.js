@@ -30236,7 +30236,7 @@ const s4 = "https://qqfvezowcmcgpsvmuhuw.supabase.co",
                                 h.jsxs("div", { className: "flex flex-col sm:flex-row gap-3 max-w-md mx-auto", children: [
                                     h.jsxs("a", { href: "https://bags.fm/H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS", target: "_blank", rel: "noopener noreferrer", className: "flex-1 px-6 py-4 bg-mushroom text-cream font-semibold tracking-wider uppercase text-sm hover:bg-mushroom/80 transition-colors text-center rounded-full", children: ["View on Bags.fm", h.jsx("span", { className: "ml-2", children: "🔗" })] })
                                 ] }),
-                                h.jsx("p", { className: "text-center text-[10px] sm:text-xs text-muted-foreground mt-6 sm:mt-8 tracking-wide", children: `100% of creator fees donated • Updates every 6 hours • Last updated: ${n?.lastUpdated ? new Date(n.lastUpdated).toLocaleTimeString() : '---'}` })
+                                h.jsx("p", { className: "text-center text-[10px] sm:text-xs text-muted-foreground mt-6 sm:mt-8 tracking-wide", children: `100% of creator fees donated • Last updated: ${n?.lastUpdated ? new Date(n.lastUpdated).toLocaleTimeString() : '---'}` })
                             ]
                         })
                     ]
