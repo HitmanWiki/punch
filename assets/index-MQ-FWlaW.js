@@ -31506,7 +31506,7 @@ const u4 = ({
                     className: "w-4 h-4 text-mushroom fill-current"
                 }), h.jsx("span", {
                     className: "font-body text-sm text-cardboard-dark",
-                    children: "A portion of proceeds supports Ichikawa Zoo and Punch 🌿"
+                    children: "All trading fees generated support the Ichikawa Zoo and Punch 🌿"
                 })]
             }), h.jsxs("div", {
                 className: "flex items-center justify-center gap-6 mb-8",
