@@ -30109,134 +30109,408 @@ const s4 = "https://qqfvezowcmcgpsvmuhuw.supabase.co",
         }
     }),
     o4 = "",
- a4 = () => {
-    const e = S.useRef(null),
-        t = bs(e, { once: !0, margin: "-100px" }),
-        [n, r] = S.useState(null),
-        [o, a] = S.useState(!1);
+a4 = () => {
+    const [feesData, setFeesData] = S.useState(null),
+        [tokenData, setTokenData] = S.useState(null),
+        [error, setError] = S.useState(null),
+        [animate, setAnimate] = S.useState(false),
+        prevSolAmount = S.useRef(null);
 
     S.useEffect(() => {
-        const fetchFees = async () => {
-            a(!0);
+        let isMounted = true;
+        
+        const fetchData = async () => {
             try {
-                // Use CORS proxy for Bags API
+                // 1. Fetch fees from Bags API via proxy
                 const feesUrl = "https://api2.bags.fm/api/v1/token-launch/lifetime-fees?tokenMint=H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS";
                 const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(feesUrl)}`;
-                
                 const feesResponse = await fetch(proxyUrl);
-                if (!feesResponse.ok) throw new Error("Failed to fetch fees");
-                const feesData = await feesResponse.json();
+                if (!feesResponse.ok) throw new Error(`HTTP ${feesResponse.status}`);
+                const feesDataRaw = await feesResponse.json();
                 
-                if (feesData.success) {
-                    // Convert lamports to SOL (1 SOL = 1,000,000,000 lamports)
-                    const lamports = parseFloat(feesData.response);
+                if (isMounted && feesDataRaw.success) {
+                    const lamports = parseFloat(feesDataRaw.response);
                     const solAmount = lamports / 1000000000;
                     
-                    // Get current SOL price from CoinGecko (no CORS)
+                    // Animate on change
+                    if (prevSolAmount.current !== null && prevSolAmount.current !== solAmount) {
+                        setAnimate(true);
+                        setTimeout(() => setAnimate(false), 800);
+                    }
+                    prevSolAmount.current = solAmount;
+                    
+                    // Get SOL price from CoinGecko
                     const priceResponse = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
                     const priceData = await priceResponse.json();
                     const solPriceUsd = priceData.solana?.usd || 85;
                     const usdAmount = solAmount * solPriceUsd;
                     
-                    r({
-                        solAmount: solAmount,
-                        usdAmount: usdAmount,
-                        solPrice: solPriceUsd,
-                        lamports: lamports,
-                        lastUpdated: Date.now()
+                    setFeesData({
+                        usd: usdAmount,
+                        sol: solAmount,
+                        solPrice: solPriceUsd
                     });
                 }
+                
+                // 2. Fetch token data from DexScreener
+                const dexResponse = await fetch("https://api.dexscreener.com/latest/dex/tokens/H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS");
+                if (dexResponse.ok) {
+                    const dexData = await dexResponse.json();
+                    if (dexData.pairs && dexData.pairs.length > 0) {
+                        const solPair = dexData.pairs.find(p => p.quoteToken?.symbol === "SOL") || dexData.pairs[0];
+                        let totalVolume = 0;
+                        for (const pair of dexData.pairs) {
+                            totalVolume += parseFloat(pair.volume?.h24 || 0);
+                        }
+                        let totalLiquidity = 0;
+                        for (const pair of dexData.pairs) {
+                            totalLiquidity += parseFloat(pair.liquidity?.usd || 0);
+                        }
+                        
+                        setTokenData({
+                            marketCap: parseFloat(solPair.marketCap || solPair.fdv || 0),
+                            volume24h: totalVolume,
+                            liquidity: totalLiquidity,
+                            priceChange24h: parseFloat(solPair.priceChange?.h24) || 0
+                        });
+                    }
+                }
             } catch (err) {
-                console.error("Failed to fetch fees:", err);
-                // Keep existing data if available, don't clear on error
-            } finally {
-                a(!1);
+                if (isMounted) setError(err instanceof Error ? err.message : "Unable to fetch");
             }
         };
         
-        // Fetch immediately
-        fetchFees();
-        
-        // Then fetch every 6 hours (21600000 milliseconds)
-        const interval = setInterval(fetchFees, 21600000);
-        
-        return () => clearInterval(interval);
+        fetchData();
+        const interval = setInterval(fetchData, 21600000); // 6 hours
+        return () => {
+            isMounted = false;
+            clearInterval(interval);
+        };
     }, []);
-
+    
+    const formatNumber = (num) => {
+        if (num == null || isNaN(num)) return "—";
+        if (num >= 1000000) return (num / 1000000).toFixed(2) + "M";
+        if (num >= 1000) return (num / 1000).toFixed(1) + "K";
+        return num.toLocaleString();
+    };
+    
+    const formatUSD = (num) => {
+        if (num == null || isNaN(num)) return "—";
+        if (num < 0.01) return num.toFixed(6);
+        if (num < 1) return num.toFixed(4);
+        return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+    
+    const priceChange = tokenData?.priceChange24h || 0;
+    const isPositive = priceChange >= 0;
+    const lastUpdated = new Date();
+    
+    return h.jsxs("div", {
+        className: "relative max-w-3xl mx-auto",
+        children: [
+            h.jsx("div", {
+                className: "absolute -inset-1 bg-gradient-to-r from-amber-500/30 via-orange-500/30 to-rose-500/30 blur-2xl opacity-60"
+            }),
+            h.jsxs("div", {
+                className: "relative bg-cream/90 backdrop-blur-xl border border-cardboard/20 p-6 sm:p-10 md:p-14 rounded-2xl paper-shadow",
+                children: [
+                    h.jsxs("div", {
+                        className: "flex items-center justify-between mb-6 sm:mb-8 pb-5 sm:pb-6 border-b border-cardboard/20 gap-4",
+                        children: [
+                            h.jsxs("div", {
+                                className: "flex items-center gap-3 min-w-0",
+                                children: [
+                                    h.jsx("img", {
+                                        src: "/assets/bags-icon-green.png",
+                                        alt: "Bags",
+                                        className: "w-10 h-10 object-contain"
+                                    }),
+                                    h.jsxs("div", {
+                                        className: "min-w-0",
+                                        children: [
+                                            h.jsx("p", { className: "text-[10px] sm:text-xs tracking-[0.3em] uppercase text-muted-foreground", children: "Powered by" }),
+                                            h.jsxs("p", { className: "text-base sm:text-lg font-bold tracking-tight text-forest-dark", children: ["Bags", h.jsx("span", { className: "text-mushroom", children: ".fm" })] })
+                                        ]
+                                    })
+                                ]
+                            }),
+                            h.jsxs("div", {
+                                className: "flex items-center gap-2 shrink-0",
+                                children: [
+                                    h.jsxs("span", {
+                                        className: `relative flex h-2.5 w-2.5 ${animate ? "scale-125" : ""} transition-transform duration-300`,
+                                        children: [
+                                            h.jsx("span", { className: "animate-ping absolute inline-flex h-full w-full rounded-full bg-mushroom opacity-75" }),
+                                            h.jsx("span", { className: "relative inline-flex rounded-full h-2.5 w-2.5 bg-mushroom" })
+                                        ]
+                                    }),
+                                    h.jsx("span", { className: "text-[10px] md:text-xs tracking-[0.3em] uppercase text-mushroom font-semibold", children: "Live" })
+                                ]
+                            })
+                        ]
+                    }),
+                    h.jsx("p", {
+                        className: "text-center text-[10px] sm:text-xs md:text-sm tracking-[0.3em] uppercase text-muted-foreground mb-3 sm:mb-4",
+                        children: "Lifetime fees for $PUNCH (100% to Charity)"
+                    }),
+                    h.jsxs("div", {
+                        className: "text-center mb-6 sm:mb-8",
+                        children: [
+                            h.jsxs("div", {
+                                className: "inline-flex items-baseline gap-1 max-w-full",
+                                children: [
+                                    h.jsx("span", { className: "text-3xl sm:text-4xl md:text-6xl font-bold text-cardboard", children: "$" }),
+                                    h.jsx("span", {
+                                        className: `text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight bg-gradient-to-b from-forest-dark via-forest to-mushroom bg-clip-text text-transparent tabular-nums transition-all duration-500 break-all ${animate ? "scale-[1.02]" : ""}`,
+                                        children: feesData?.usd != null ? formatUSD(feesData.usd) : "···"
+                                    })
+                                ]
+                            }),
+                            h.jsxs("div", {
+                                className: "mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs sm:text-sm text-muted-foreground",
+                                children: [
+                                    h.jsx("span", { className: "tabular-nums", children: feesData?.sol != null ? `${feesData.sol.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SOL` : "—" }),
+                                    h.jsx("span", { className: "tracking-wider", children: `@ $${feesData?.solPrice?.toLocaleString() || "—"}` }),
+                                    h.jsx("span", { className: "tracking-wider", children: "→ Ichikawa Zoo, Japan" })
+                                ]
+                            })
+                        ]
+                    }),
+                    tokenData && h.jsxs("div", {
+                        className: "grid grid-cols-3 gap-2 sm:gap-3 mb-6 sm:mb-8 max-w-xl mx-auto text-center",
+                        children: [
+                            h.jsxs("div", { className: "border border-cardboard/20 bg-cardboard/5 py-3 px-2 rounded-lg", children: [
+                                h.jsx("div", { className: "text-[10px] uppercase tracking-widest text-muted-foreground", children: "Market Cap" }),
+                                h.jsxs("div", { className: "text-xs sm:text-sm font-semibold text-forest-dark tabular-nums mt-1", children: ["$", formatNumber(tokenData.marketCap)] })
+                            ] }),
+                            h.jsxs("div", { className: "border border-cardboard/20 bg-cardboard/5 py-3 px-2 rounded-lg", children: [
+                                h.jsx("div", { className: "text-[10px] uppercase tracking-widest text-muted-foreground", children: "Volume 24h" }),
+                                h.jsxs("div", { className: "text-xs sm:text-sm font-semibold text-forest-dark tabular-nums mt-1", children: ["$", formatNumber(tokenData.volume24h)] })
+                            ] }),
+                            h.jsxs("div", { className: "border border-cardboard/20 bg-cardboard/5 py-3 px-2 rounded-lg", children: [
+                                h.jsx("div", { className: "text-[10px] uppercase tracking-widest text-muted-foreground", children: "Liquidity" }),
+                                h.jsxs("div", { className: "text-xs sm:text-sm font-semibold text-forest-dark tabular-nums mt-1", children: ["$", formatNumber(tokenData.liquidity)] })
+                            ] })
+                        ]
+                    }),
+                    h.jsxs("div", {
+                        className: "flex flex-col sm:flex-row gap-3 max-w-md mx-auto",
+                        children: [
+                            h.jsxs("a", {
+                                href: "https://bags.fm/H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS",
+                                target: "_blank",
+                                rel: "noopener noreferrer",
+                                className: "flex-1 px-6 py-4 bg-mushroom text-cream font-semibold tracking-wider uppercase text-sm hover:bg-mushroom/80 transition-colors text-center rounded-full",
+                                children: ["Support Punch", h.jsx("span", { className: "ml-2", children: "🐵" })]
+                            }),
+                            h.jsxs("a", {
+                                href: "https://bags.fm/H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS",
+                                target: "_blank",
+                                rel: "noopener noreferrer",
+                                className: "flex-1 px-6 py-4 border border-cardboard/40 text-forest-dark font-semibold tracking-wider uppercase text-sm hover:bg-cardboard/10 transition-colors text-center rounded-full",
+                                children: ["View on Bags", h.jsx("span", { className: "ml-2", children: "🔗" })]
+                            })
+                        ]
+                    }),
+                    h.jsxs("p", {
+                        className: "text-center text-[10px] sm:text-xs text-muted-foreground mt-6 sm:mt-8 tracking-wide",
+                        children: [
+                            "Live on-chain data via Bags.fm + DexScreener",
+                            h.jsxs(h.Fragment, { children: [" • Updated ", lastUpdated.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" })] }),
+                            error && h.jsxs("span", { className: "text-rose-400/70", children: [" • ", error] })
+                        ]
+                    })
+                ]
+            })
+        ]
+    });
+},
+um = "/assets/punch-plushie-KIBAYdLI.jpg",
+l4 = () => {
+    const e = S.useRef(null),
+        t = bs(e, {
+            once: !0,
+            margin: "-100px"
+        });
     return h.jsx("section", {
         ref: e,
-        className: "relative py-12 px-6",
+        className: "relative py-24 px-6",
         children: h.jsxs("div", {
-            className: "relative z-10 max-w-6xl mx-auto",
+            className: "max-w-4xl mx-auto",
             children: [
+                // Section 1 - Punch's Origin Story
                 h.jsxs("div", {
-                    className: "text-center mb-16",
+                    className: "mb-24",
                     children: [
-                        h.jsxs("div", {
-                            className: "inline-flex items-center gap-2 px-4 py-2 border border-cardboard/30 bg-cardboard/5 mb-6",
+                        h.jsxs(D.div, {
+                            className: "text-center mb-16",
+                            initial: { opacity: 0, y: 30 },
+                            animate: t ? { opacity: 1, y: 0 } : {},
+                            transition: { duration: .8 },
                             children: [
-                                h.jsx("span", { className: "text-xs tracking-[0.4em] uppercase text-cardboard-dark font-semibold", children: "100% to Charity" })
+                                h.jsx("h2", { className: "font-storybook text-4xl md:text-5xl text-forest-dark mb-4", children: "Punch's Story 🐵" }),
+                                h.jsxs("div", { className: "flex items-center justify-center gap-3", children: [
+                                    h.jsx("div", { className: "h-0.5 w-12 bg-cardboard rounded-full" }),
+                                    h.jsx(Qo, { className: "w-5 h-5 text-mushroom" }),
+                                    h.jsx("div", { className: "h-0.5 w-12 bg-cardboard rounded-full" })
+                                ] })
                             ]
                         }),
-                        h.jsxs("h2", {
-                            className: "text-4xl md:text-6xl font-bold tracking-tight mb-6",
+                        h.jsxs(D.div, {
+                            className: "relative",
+                            initial: { opacity: 0, y: 40 },
+                            animate: t ? { opacity: 1, y: 0 } : {},
+                            transition: { duration: .8, delay: .2 },
                             children: [
-                                "Every fee goes to ",
-                                h.jsx("br", { className: "md:hidden" }),
-                                h.jsx("span", { className: "bg-gradient-to-r from-amber-200 to-orange-300 bg-clip-text text-transparent", children: "support Punch at Ichikawa Zoo" })
+                                h.jsx("div", { className: "absolute -inset-2 bg-cardboard-light rounded-2xl transform rotate-1 paper-shadow" }),
+                                h.jsx("div", { className: "absolute -inset-1 bg-cream-dark rounded-xl transform -rotate-0.5" }),
+                                h.jsx("div", { className: "relative bg-cream rounded-xl p-8 md:p-12 paper-texture", children: h.jsxs("div", { className: "grid md:grid-cols-2 gap-8 items-center", children: [
+                                    h.jsxs("div", { className: "space-y-6", children: [
+                                        h.jsxs("p", { className: "font-body text-lg text-foreground leading-relaxed", children: [
+                                            "Meet ", h.jsx("strong", { children: "Punch" }), " Born on July 26, 2025, at Ichikawa City Zoological and Botanical Gardens, he was abandoned by his mother just days into life. ",
+                                            h.jsx("strong", { children: "No protection. No warmth. No chance. In the wild, that's the end of the story." })
+                                        ] }),
+                                        h.jsxs("p", { className: "font-body text-lg text-foreground leading-relaxed", children: [
+                                            "But Punch didn't disappear. ", h.jsx("strong", { children: "Zookeepers stepped in and raised him by hand." }),
+                                            " Bottle-fed. Watched 24/7. Kept alive through pure human care."
+                                        ] }),
+                                        h.jsxs("p", { className: "font-body text-lg text-foreground leading-relaxed", children: [
+                                            "But survival wasn't the hard part. ", h.jsx("strong", { children: "Loneliness was." }),
+                                            " So they gave him something simple. A stuffed toy. A big, soft orangutan plush. And Punch held onto it like it was everything. Because to him, it was everything."
+                                        ] }),
+                                        h.jsxs("div", { className: "flex items-center gap-2 pt-4", children: [
+                                            h.jsx(Ot, { className: "w-5 h-5 text-mushroom fill-current" }),
+                                            h.jsx("span", { className: "font-storybook text-muted-foreground italic", children: '"A tiny monkey, clinging to a toy like it was the only thing in the world."' })
+                                        ] }),
+                                        // h.jsxs(Ar, { to: "/story", className: "inline-flex items-center gap-2 mt-6 px-4 py-2 bg-forest text-cream rounded-full font-body text-sm hover:bg-forest-dark transition-colors paper-shadow", children: ["Continue the Story", h.jsx(_C, { className: "w-4 h-4" })] })
+                                    ] }),
+                                    h.jsxs(D.div, { className: "relative", initial: { opacity: 0, scale: .95 }, animate: t ? { opacity: 1, scale: 1 } : {}, transition: { duration: .8, delay: .4 }, children: [
+                                        h.jsxs("div", { className: "bg-cream p-3 pb-12 rounded-lg paper-shadow transform hover:rotate-1 transition-transform duration-500", children: [
+                                            h.jsx("img", { src: um, alt: "Punch sitting with his plushie friend at the sanctuary", className: "w-full aspect-square object-cover rounded" }),
+                                            h.jsx("p", { className: "absolute bottom-4 left-0 right-0 text-center font-storybook text-cardboard-dark text-sm", children: "Punch & his best friend 🧸" })
+                                        ] }),
+                                        h.jsx("div", { className: "absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-6 bg-cream/80 transform -rotate-2 rounded-sm opacity-70" })
+                                    ] })
+                                ] }) })
                             ]
-                        }),
-                        h.jsx("p", {
-                            className: "text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed",
-                            children: "100% of creator fees from $PUNCH transactions go directly to supporting the real Punch at Ichikawa Zoo — providing care, food, and enrichment for Punch and his friends."
                         })
                     ]
                 }),
+                
+                // Section 2 - Punch Goes Global (The Struggle)
                 h.jsxs("div", {
-                    className: "relative max-w-3xl mx-auto",
+                    className: "mb-24",
                     children: [
-                        h.jsx("div", { className: "absolute -inset-1 bg-gradient-to-r from-amber-500/30 via-orange-500/30 to-rose-500/30 blur-2xl opacity-60" }),
-                        h.jsxs("div", {
-                            className: "relative bg-cream/90 backdrop-blur-xl border border-cardboard/20 p-6 sm:p-10 md:p-14 rounded-2xl paper-shadow",
+                        h.jsxs(D.div, {
+                            className: "text-center mb-16",
+                            initial: { opacity: 0, y: 30 },
+                            animate: t ? { opacity: 1, y: 0 } : {},
+                            transition: { duration: .8, delay: .3 },
                             children: [
-                                h.jsxs("div", {
-                                    className: "flex items-center justify-between mb-6 sm:mb-8 pb-5 sm:pb-6 border-b border-cardboard/20 gap-4",
-                                    children: [
-                                        h.jsxs("div", {
-                                            className: "flex items-center gap-3 min-w-0",
-                                            children: [
-                                                h.jsx("div", { className: "w-10 h-10 bg-forest rounded-full flex items-center justify-center text-white text-xl shrink-0", children: "🐵" }),
-                                                h.jsxs("div", { className: "min-w-0", children: [
-                                                    h.jsx("p", { className: "text-[10px] sm:text-xs tracking-[0.3em] uppercase text-muted-foreground", children: "Total raised for" }),
-                                                    h.jsx("p", { className: "text-base sm:text-lg font-bold tracking-tight text-forest-dark", children: "Ichikawa Zoo" })
-                                                ] })
-                                            ]
-                                        }),
-                                        h.jsxs("div", { className: "flex items-center gap-2 shrink-0", children: [
-                                            h.jsxs("span", { className: "relative flex h-2.5 w-2.5 transition-transform duration-300", children: [
-                                                h.jsx("span", { className: "animate-ping absolute inline-flex h-full w-full rounded-full bg-mushroom opacity-75" }),
-                                                h.jsx("span", { className: "relative inline-flex rounded-full h-2.5 w-2.5 bg-mushroom" })
-                                            ] }),
-                                            h.jsx("span", { className: "text-[10px] md:text-xs tracking-[0.3em] uppercase text-mushroom font-semibold", children: "Live" })
-                                        ] })
-                                    ]
-                                }),
-                                h.jsx("p", { className: "text-center text-[10px] sm:text-xs md:text-sm tracking-[0.3em] uppercase text-muted-foreground mb-3 sm:mb-4", children: "Lifetime fees donated (100% to charity)" }),
-                                h.jsxs("div", { className: "text-center mb-6 sm:mb-8", children: [
-                                    h.jsxs("div", { className: "inline-flex items-baseline gap-1 max-w-full flex-wrap justify-center", children: [
-                                        h.jsx("span", { className: "text-3xl sm:text-4xl md:text-6xl font-bold text-cardboard", children: "$" }),
-                                        h.jsx("span", { className: "text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight bg-gradient-to-b from-forest-dark via-forest to-mushroom bg-clip-text text-transparent tabular-nums transition-all duration-500 break-all", children: o ? "..." : ((n == null ? void 0 : n.usdAmount) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) })
+                                // h.jsx("h2", { className: "font-storybook text-4xl md:text-5xl text-forest-dark mb-4", children: "A Tiny Monkey. A Global Movement. 🌍" }),
+                                h.jsxs("div", { className: "flex items-center justify-center gap-3", children: [
+                                    h.jsx("div", { className: "h-0.5 w-12 bg-cardboard rounded-full" }),
+                                    h.jsx(Qo, { className: "w-5 h-5 text-mushroom" }),
+                                    h.jsx("div", { className: "h-0.5 w-12 bg-cardboard rounded-full" })
+                                ] })
+                            ]
+                        }),
+                        h.jsxs(D.div, {
+                            className: "relative",
+                            initial: { opacity: 0, y: 40 },
+                            animate: t ? { opacity: 1, y: 0 } : {},
+                            transition: { duration: .8, delay: .5 },
+                            children: [
+                                h.jsx("div", { className: "absolute -inset-2 bg-cardboard-light rounded-2xl transform -rotate-1 paper-shadow" }),
+                                h.jsx("div", { className: "absolute -inset-1 bg-cream-dark rounded-xl transform rotate-0.5" }),
+                                h.jsx("div", { className: "relative bg-cream rounded-xl p-8 md:p-12 paper-texture", children: h.jsxs("div", { className: "grid md:grid-cols-2 gap-8 items-center", children: [
+                                    h.jsxs(D.div, { className: "relative order-2 md:order-1", initial: { opacity: 0, scale: .95 }, animate: t ? { opacity: 1, scale: 1 } : {}, transition: { duration: .8, delay: .6 }, children: [
+                                        h.jsxs("div", { className: "bg-cream p-3 pb-12 rounded-lg paper-shadow transform hover:rotate-1 transition-transform duration-500", children: [
+                                            h.jsx("img", { src: "https://punch-orcin-eight.vercel.app/assets/punch-gallery-2-D-zmw03b.jpg", alt: "Punch going viral on social media", className: "w-full aspect-square object-cover rounded" }),
+                                            h.jsx("p", { className: "absolute bottom-4 left-0 right-0 text-center font-storybook text-cardboard-dark text-sm", children: "#PunchOnSol 🌐" })
+                                        ] }),
+                                        h.jsx("div", { className: "absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-6 bg-cream/80 transform rotate-2 rounded-sm opacity-70" })
                                     ] }),
-                                    h.jsxs("div", { className: "mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs sm:text-sm text-muted-foreground", children: [
-                                        h.jsx("span", { className: "tabular-nums", children: `${((n == null ? void 0 : n.solAmount) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SOL` }),
-                                        h.jsx("span", { className: "tracking-wider", children: "@ $" + ((n == null ? void 0 : n.solPrice) || 0).toLocaleString() }),
-                                        h.jsx("span", { className: "tracking-wider", children: "→ Ichikawa Zoo, Japan" })
+                                    h.jsxs("div", { className: "space-y-6 order-1 md:order-2", children: [
+                                        h.jsxs("p", { className: "font-body text-lg text-foreground leading-relaxed", children: [
+                                            "A tiny monkey, clinging to a toy, ", h.jsx("strong", { children: "like it was the only thing in the world." }),
+                                            " And just like that, Punch went global. Millions watched. Millions felt it. Because it wasn't just a monkey anymore. It was a feeling."
+                                        ] }),
+                                        h.jsxs("p", { className: "font-body text-lg text-foreground leading-relaxed", children: [
+                                            "But here's the part people don't talk about. When Punch was reintroduced to other monkeys, ", 
+                                            h.jsx("strong", { children: "he didn't belong." }), " He didn't know how to act. Didn't understand the rules. Didn't fit in."
+                                        ] }),
+                                        h.jsxs("p", { className: "font-body text-lg text-foreground leading-relaxed", children: [
+                                            "He was different. ", h.jsx("strong", { children: "And he still is." }),
+                                            " But day by day, he's learning. Climbing. Playing. Finding his place. No shortcuts. No hype. Just showing up and figuring it out."
+                                        ] }),
+                                        h.jsxs("div", { className: "flex items-center gap-2 pt-4", children: [
+                                            h.jsx(Ot, { className: "w-5 h-5 text-mushroom fill-current" }),
+                                            h.jsx("span", { className: "font-storybook text-muted-foreground italic", children: '"But because he didn\'t quit when he had every reason to."' })
+                                        ] })
                                     ] })
-                                ] }),
-                                h.jsxs("div", { className: "flex flex-col sm:flex-row gap-3 max-w-md mx-auto", children: [
-                                    h.jsxs("a", { href: "https://bags.fm/H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS", target: "_blank", rel: "noopener noreferrer", className: "flex-1 px-6 py-4 bg-mushroom text-cream font-semibold tracking-wider uppercase text-sm hover:bg-mushroom/80 transition-colors text-center rounded-full", children: ["View on Bags.fm", h.jsx("span", { className: "ml-2", children: "🔗" })] })
-                                ] }),
-                                h.jsx("p", { className: "text-center text-[10px] sm:text-xs text-muted-foreground mt-6 sm:mt-8 tracking-wide", children: `100% of creator fees donated • Last updated: ${n?.lastUpdated ? new Date(n.lastUpdated).toLocaleTimeString() : '---'}` })
+                                ] }) })
+                            ]
+                        })
+                    ]
+                }),
+                
+                // Section 3 - Why Punch On Sol Exists (The Movement)
+                h.jsxs("div", {
+                    className: "mb-0",
+                    children: [
+                        h.jsxs(D.div, {
+                            className: "text-center mb-16",
+                            initial: { opacity: 0, y: 30 },
+                            animate: t ? { opacity: 1, y: 0 } : {},
+                            transition: { duration: .8, delay: .6 },
+                            children: [
+                                // h.jsx("h2", { className: "font-storybook text-4xl md:text-5xl text-forest-dark mb-4", children: "Why $PUNCH Exists 💚" }),
+                                h.jsxs("div", { className: "flex items-center justify-center gap-3", children: [
+                                    h.jsx("div", { className: "h-0.5 w-12 bg-cardboard rounded-full" }),
+                                    h.jsx(Qo, { className: "w-5 h-5 text-mushroom" }),
+                                    h.jsx("div", { className: "h-0.5 w-12 bg-cardboard rounded-full" })
+                                ] })
+                            ]
+                        }),
+                        h.jsxs(D.div, {
+                            className: "relative",
+                            initial: { opacity: 0, y: 40 },
+                            animate: t ? { opacity: 1, y: 0 } : {},
+                            transition: { duration: .8, delay: .7 },
+                            children: [
+                                h.jsx("div", { className: "absolute -inset-2 bg-cardboard-light rounded-2xl transform rotate-1 paper-shadow" }),
+                                h.jsx("div", { className: "absolute -inset-1 bg-cream-dark rounded-xl transform -rotate-0.5" }),
+                                h.jsx("div", { className: "relative bg-cream rounded-xl p-8 md:p-12 paper-texture", children: h.jsxs("div", { className: "grid md:grid-cols-2 gap-8 items-center", children: [
+                                    h.jsxs("div", { className: "space-y-6", children: [
+                                        h.jsxs("p", { className: "font-body text-lg text-foreground leading-relaxed", children: [
+                                            "Because the internet doesn't rally around perfection. ",
+                                            h.jsx("strong", { children: "It rallies around something real." }),
+                                            " Punch is: raw, imperfect, and still here. And that's exactly what wins."
+                                        ] }),
+                                        h.jsxs("p", { className: "font-body text-lg text-foreground leading-relaxed", children: [
+                                            h.jsx("strong", { children: "The Movement" }),
+                                            " - This isn't just a token. It's a reminder: You don't need to start strong. You just need to not stop."
+                                        ] }),
+                                        h.jsxs("div", { className: "bg-mushroom/10 border border-mushroom/30 rounded-lg p-6 mt-4 text-center", children: [
+                                            h.jsx("p", { className: "font-storybook text-2xl md:text-3xl text-forest-dark", children: "BUY. HOLD. BELIEVE." }),
+                                            h.jsx("p", { className: "font-body text-sm text-muted-foreground mt-2", children: "Join the movement. Be part of something real." })
+                                        ] }),
+                                        h.jsxs("div", { className: "flex items-center gap-2 pt-4", children: [
+                                            h.jsx(Ot, { className: "w-5 h-5 text-mushroom fill-current" }),
+                                            h.jsx("span", { className: "font-storybook text-muted-foreground italic", children: '"You don\'t need to start strong. You just need to not stop."' })
+                                        ] }),
+                                        // h.jsxs(Ar, { to: "/", className: "inline-flex items-center gap-2 mt-6 px-4 py-2 bg-forest text-cream rounded-full font-body text-sm hover:bg-forest-dark transition-colors paper-shadow", children: ["Join the Movement", h.jsx(_C, { className: "w-4 h-4" })] })
+                                    ] }),
+                                    h.jsxs(D.div, { className: "relative", initial: { opacity: 0, scale: .95 }, animate: t ? { opacity: 1, scale: 1 } : {}, transition: { duration: .8, delay: .8 }, children: [
+                                        h.jsxs("div", { className: "bg-cream p-3 pb-12 rounded-lg paper-shadow transform hover:rotate-1 transition-transform duration-500", children: [
+                                            h.jsx("img", { src: "https://punch-orcin-eight.vercel.app/assets/punch-gallery-1-DA3nI4x0.jpg", alt: "$PUNCH community coming together", className: "w-full aspect-square object-cover rounded" }),
+                                            h.jsx("p", { className: "absolute bottom-4 left-0 right-0 text-center font-storybook text-cardboard-dark text-sm", children: "$PUNCH Community 💚" })
+                                        ] }),
+                                        h.jsx("div", { className: "absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-6 bg-cream/80 transform -rotate-2 rounded-sm opacity-70" })
+                                    ] })
+                                ] }) })
                             ]
                         })
                     ]
@@ -30245,138 +30519,6 @@ const s4 = "https://qqfvezowcmcgpsvmuhuw.supabase.co",
         })
     });
 },
-    um = "/assets/punch-plushie-KIBAYdLI.jpg",
-    l4 = () => {
-        const e = S.useRef(null),
-            t = bs(e, {
-                once: !0,
-                margin: "-100px"
-            });
-        return h.jsx("section", {
-            ref: e,
-            className: "relative py-24 px-6",
-            children: h.jsxs("div", {
-                className: "max-w-4xl mx-auto",
-                children: [h.jsxs(D.div, {
-                    className: "text-center mb-16",
-                    initial: {
-                        opacity: 0,
-                        y: 30
-                    },
-                    animate: t ? {
-                        opacity: 1,
-                        y: 0
-                    } : {},
-                    transition: {
-                        duration: .8
-                    },
-                    children: [h.jsx("h2", {
-                        className: "font-storybook text-4xl md:text-5xl text-forest-dark mb-4",
-                        children: "Punch's Story 🐵"
-                    }), h.jsxs("div", {
-                        className: "flex items-center justify-center gap-3",
-                        children: [h.jsx("div", {
-                            className: "h-0.5 w-12 bg-cardboard rounded-full"
-                        }), h.jsx(Qo, {
-                            className: "w-5 h-5 text-mushroom"
-                        }), h.jsx("div", {
-                            className: "h-0.5 w-12 bg-cardboard rounded-full"
-                        })]
-                    })]
-                }), h.jsxs(D.div, {
-                    className: "relative",
-                    initial: {
-                        opacity: 0,
-                        y: 40
-                    },
-                    animate: t ? {
-                        opacity: 1,
-                        y: 0
-                    } : {},
-                    transition: {
-                        duration: .8,
-                        delay: .2
-                    },
-                    children: [h.jsx("div", {
-                        className: "absolute -inset-2 bg-cardboard-light rounded-2xl transform rotate-1 paper-shadow"
-                    }), h.jsx("div", {
-                        className: "absolute -inset-1 bg-cream-dark rounded-xl transform -rotate-0.5"
-                    }), h.jsx("div", {
-                        className: "relative bg-cream rounded-xl p-8 md:p-12 paper-texture",
-                        children: h.jsxs("div", {
-                            className: "grid md:grid-cols-2 gap-8 items-center",
-                            children: [h.jsxs("div", {
-                                className: "space-y-6",
-                                children: [h.jsxs("p", {
-                                    className: "font-body text-lg text-foreground leading-relaxed",
-                                    children: ["Meet ", h.jsx("strong", {
-                                        children: "Punch"
-                                    }), " Born on July 26, 2025, at Ichikawa City Zoological and Botanical Gardens, he was abandoned by his mother just days into life. ", h.jsx("strong", {
-                                        children: "No protection. No warmth.No chance.In the wild, that’s the end of the story."
-                                    }), ]
-                                }), h.jsxs("p", {
-                                    className: "font-body text-lg text-foreground leading-relaxed",
-                                    children: ["But Punch didn’t disappear.", h.jsx("strong", {
-                                        children: "Zookeepers stepped in and raised him by hand."
-                                    }), "Bottle-fed.Watched 24/7.Kept alive through pure human care."]
-                                }), h.jsxs("p", {
-                                    className: "font-body text-lg text-foreground leading-relaxed",
-                                    children: ["But survival wasn’t the hard part. ", h.jsx("strong", {
-                                        children: "Loneliness was."
-                                    }), "So they gave him something simple.A stuffed toy.A big, soft orangutan plush.And Punch held onto it like it was everything.Because to him, it was everything.Then the internet found him."]
-                                }), h.jsxs("div", {
-                                    className: "flex items-center gap-2 pt-4",
-                                    children: [h.jsx(Ot, {
-                                        className: "w-5 h-5 text-mushroom fill-current"
-                                    }), h.jsx("span", {
-                                        className: "font-storybook text-muted-foreground italic",
-                                        children: `"A tiny monkey,
-clinging to a toy
-like it was the only thing in the world."`
-                                    })]
-                                }), 
-                                h.jsxs(Ar, {
-                                    to: "/story",
-                                    className: "inline-flex items-center gap-2 mt-6 px-4 py-2 bg-forest text-cream rounded-full font-body text-sm hover:bg-forest-dark transition-colors paper-shadow",
-                                    children: ["And the Story Continues", h.jsx(_C, {
-                                        className: "w-4 h-4"
-                                    })]
-                                })
-                            ]
-                            }), h.jsxs(D.div, {
-                                className: "relative",
-                                initial: {
-                                    opacity: 0,
-                                    scale: .95
-                                },
-                                animate: t ? {
-                                    opacity: 1,
-                                    scale: 1
-                                } : {},
-                                transition: {
-                                    duration: .8,
-                                    delay: .4
-                                },
-                                children: [h.jsxs("div", {
-                                    className: "bg-cream p-3 pb-12 rounded-lg paper-shadow transform hover:rotate-1 transition-transform duration-500",
-                                    children: [h.jsx("img", {
-                                        src: um,
-                                        alt: "Punch sitting with his plushie friend at the sanctuary",
-                                        className: "w-full aspect-square object-cover rounded"
-                                    }), h.jsx("p", {
-                                        className: "absolute bottom-4 left-0 right-0 text-center font-storybook text-cardboard-dark text-sm",
-                                        children: "Punch & his best friend 🧸"
-                                    })]
-                                }), h.jsx("div", {
-                                    className: "absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-6 bg-cream/80 transform -rotate-2 rounded-sm opacity-70"
-                                })]
-                            })]
-                        })
-                    })]
-                })]
-            })
-        })
-    },
     c4 = hb("inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0", {
         variants: {
             variant: {
@@ -31641,12 +31783,13 @@ const u4 = ({
         const o = [{
             to: "/",
             icon: gb,
-            label: "Home"
-        }, {
-            to: "/story",
-            icon: wb,
-            label: "Story"
+            label: "パンチ"
         }, 
+        // {
+        //     to: "/story",
+        //     icon: wb,
+        //     label: "Story"
+        // }, 
         // {
         //     to: "/pfp",
         //     icon: LC,
@@ -31692,7 +31835,7 @@ const u4 = ({
         className: "relative min-h-screen overflow-x-hidden",
         children: [h.jsx(Aa, {}), h.jsx(Na, {}), h.jsx(E4, {}), h.jsx(C4, {}), h.jsxs("main", {
             className: "relative z-10",
-            children: [h.jsx(PD, {}),  h.jsx(l4, {}), h.jsx(f4, {}), h.jsx(p4, {}),h.jsx(h4, {}), h.jsx(m4, {}),h.jsx(a4, {}), h.jsx(g4, {}), h.jsx(_4, {})]
+            children: [h.jsx(PD, {}),  h.jsx(l4, {}), h.jsx(f4, {}), h.jsx(p4, {}),h.jsx(a4, {}), h.jsx(m4, {}), h.jsx(g4, {}), h.jsx(_4, {})]
         })]
     }),
     j4 = () => h.jsxs("div", {
