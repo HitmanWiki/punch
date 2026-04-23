@@ -30109,38 +30109,55 @@ const s4 = "https://qqfvezowcmcgpsvmuhuw.supabase.co",
         }
     }),
     o4 = "",
-    a4 = () => {
+  a4 = () => {
     const e = S.useRef(null),
         t = bs(e, { once: !0, margin: "-100px" }),
         [n, r] = S.useState(null),
         [o, a] = S.useState(!1);
 
-    const fetchEarnings = async () => {
+    S.useEffect(() => {
+       const fetchFees = async () => {
     a(!0);
     try {
-        const tokenAddress = "H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS";
-        const apiUrl = `https://bags.fm/api/fees/${tokenAddress}`;
+        // Use CORS proxy for Bags API
+        const feesUrl = "https://api2.bags.fm/api/v1/token-launch/lifetime-fees?tokenMint=H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS";
+        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(feesUrl)}`;
         
-        // Use allorigins proxy
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(apiUrl)}`;
+        const feesResponse = await fetch(proxyUrl);
+        if (!feesResponse.ok) throw new Error("Failed to fetch fees");
+        const feesData = await feesResponse.json();
         
-        const response = await fetch(proxyUrl, {
-            headers: {
-                "Authorization": `Bearer bags_prod_ainU7Tcp_MsQ4KIO2pu49_bh9AI0KPpH0KPzFZyprZ0`
-            }
-        });
-        
-        if (!response.ok) throw new Error("API failed");
-        const data = await response.json();
-        const earningsValue = data?.lifetimeFees?.usd || data?.earnings || 16787.50;
-        r({ current_amount: earningsValue });
+        if (feesData.success) {
+            // Convert lamports to SOL
+            const lamports = parseFloat(feesData.response);
+            const solAmount = lamports / 1000000000;
+            
+            // Get SOL price from CoinGecko (no CORS issues)
+            const priceResponse = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
+            const priceData = await priceResponse.json();
+            const solPriceUsd = priceData.solana?.usd;
+            
+            const usdAmount = solAmount * solPriceUsd;
+            
+            r({
+                solAmount: solAmount,
+                usdAmount: usdAmount,
+                solPrice: solPriceUsd,
+                lamports: lamports
+            });
+        }
     } catch (err) {
-        console.error(err);
-        r({ current_amount: 0 });
+        console.error("Failed to fetch:", err);
     } finally {
         a(!1);
     }
 };
+        
+        fetchFees();
+        const interval = setInterval(fetchFees, 60000);
+        return () => clearInterval(interval);
+    }, []);
+
     return h.jsx("section", {
         ref: e,
         className: "relative py-12 px-6",
@@ -30153,20 +30170,20 @@ const s4 = "https://qqfvezowcmcgpsvmuhuw.supabase.co",
                         h.jsxs("div", {
                             className: "inline-flex items-center gap-2 px-4 py-2 border border-cardboard/30 bg-cardboard/5 mb-6",
                             children: [
-                                h.jsx("span", { className: "text-xs tracking-[0.4em] uppercase text-cardboard-dark font-semibold", children: "Powered by Bags.fm" })
+                                h.jsx("span", { className: "text-xs tracking-[0.4em] uppercase text-cardboard-dark font-semibold", children: "100% to Charity" })
                             ]
                         }),
                         h.jsxs("h2", {
                             className: "text-4xl md:text-6xl font-bold tracking-tight mb-6",
                             children: [
-                                "A community that ",
+                                "Every fee goes to ",
                                 h.jsx("br", { className: "md:hidden" }),
-                                h.jsx("span", { className: "bg-gradient-to-r from-amber-200 to-orange-300 bg-clip-text text-transparent", children: "carries the dream forward" })
+                                h.jsx("span", { className: "bg-gradient-to-r from-amber-200 to-orange-300 bg-clip-text text-transparent", children: "support Punch at Ichikawa Zoo" })
                             ]
                         }),
                         h.jsx("p", {
                             className: "text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed",
-                            children: "Every transaction contributes to supporting the real Punch at Ichikawa Zoo. Creator fees help provide care, food, and enrichment for Punch and his friends."
+                            children: "100% of creator fees from $PUNCH transactions go directly to supporting the real Punch at Ichikawa Zoo — providing care, food, and enrichment for Punch and his friends."
                         })
                     ]
                 }),
@@ -30190,8 +30207,8 @@ const s4 = "https://qqfvezowcmcgpsvmuhuw.supabase.co",
                                                 h.jsxs("div", {
                                                     className: "min-w-0",
                                                     children: [
-                                                        h.jsx("p", { className: "text-[10px] sm:text-xs tracking-[0.3em] uppercase text-muted-foreground", children: "Powered by" }),
-                                                        h.jsxs("p", { className: "text-base sm:text-lg font-bold tracking-tight text-forest-dark", children: ["$PUNCH", h.jsx("span", { className: "text-mushroom", children: ".fm" })] })
+                                                        h.jsx("p", { className: "text-[10px] sm:text-xs tracking-[0.3em] uppercase text-muted-foreground", children: "Total raised for" }),
+                                                        h.jsx("p", { className: "text-base sm:text-lg font-bold tracking-tight text-forest-dark", children: "Ichikawa Zoo" })
                                                     ]
                                                 })
                                             ]
@@ -30210,26 +30227,27 @@ const s4 = "https://qqfvezowcmcgpsvmuhuw.supabase.co",
                                 }),
                                 h.jsx("p", {
                                     className: "text-center text-[10px] sm:text-xs md:text-sm tracking-[0.3em] uppercase text-muted-foreground mb-3 sm:mb-4",
-                                    children: "Total holder earnings from $PUNCH"
+                                    children: "Lifetime fees donated (100% to charity)"
                                 }),
                                 h.jsxs("div", {
                                     className: "text-center mb-6 sm:mb-8",
                                     children: [
                                         h.jsxs("div", {
-                                            className: "inline-flex items-baseline gap-1 max-w-full",
+                                            className: "inline-flex items-baseline gap-1 max-w-full flex-wrap justify-center",
                                             children: [
                                                 h.jsx("span", { className: "text-3xl sm:text-4xl md:text-6xl font-bold text-cardboard", children: "$" }),
                                                 h.jsx("span", {
                                                     className: "text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-bold tracking-tight bg-gradient-to-b from-forest-dark via-forest to-mushroom bg-clip-text text-transparent tabular-nums transition-all duration-500 break-all",
-                                                    children: o ? "..." : ((n == null ? void 0 : n.current_amount) || 16787.50).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                                                    children: o ? "..." : ((n == null ? void 0 : n.usdAmount) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                                                 })
                                             ]
                                         }),
                                         h.jsxs("div", {
                                             className: "mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs sm:text-sm text-muted-foreground",
                                             children: [
-                                                h.jsx("span", { className: "tabular-nums", children: "~$" + Math.round(((n == null ? void 0 : n.current_amount) || 16787.50) * 0.2).toLocaleString() + " to Zoo" }),
-                                                h.jsx("span", { className: "tracking-wider", children: "$PUNCH • Bags.fm" })
+                                                h.jsx("span", { className: "tabular-nums", children: `${((n == null ? void 0 : n.solAmount) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} SOL` }),
+                                                h.jsx("span", { className: "tracking-wider", children: "@ $" + ((n == null ? void 0 : n.solPrice) || 0).toLocaleString() }),
+                                                h.jsx("span", { className: "tracking-wider", children: "→ Ichikawa Zoo, Japan" })
                                             ]
                                         })
                                     ]
@@ -30242,20 +30260,13 @@ const s4 = "https://qqfvezowcmcgpsvmuhuw.supabase.co",
                                             target: "_blank",
                                             rel: "noopener noreferrer",
                                             className: "flex-1 px-6 py-4 bg-mushroom text-cream font-semibold tracking-wider uppercase text-sm hover:bg-mushroom/80 transition-colors text-center rounded-full",
-                                            children: ["Support Punch", h.jsx("span", { className: "ml-2", children: "🐵" })]
-                                        }),
-                                        h.jsxs("a", {
-                                            href: "https://bags.fm/H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS",
-                                            target: "_blank",
-                                            rel: "noopener noreferrer",
-                                            className: "flex-1 px-6 py-4 border border-cardboard/40 text-forest-dark font-semibold tracking-wider uppercase text-sm hover:bg-cardboard/10 transition-colors text-center rounded-full",
-                                            children: ["View on Bags", h.jsx("span", { className: "ml-2", children: "🔗" })]
+                                            children: ["View on Bags.fm", h.jsx("span", { className: "ml-2", children: "🔗" })]
                                         })
                                     ]
                                 }),
                                 h.jsx("p", {
                                     className: "text-center text-[10px] sm:text-xs text-muted-foreground mt-6 sm:mt-8 tracking-wide",
-                                    children: "Live on-chain data via Bags.fm + DexScreener"
+                                    children: `100% of creator fees donated • Updated: ${new Date().toLocaleTimeString()}`
                                 })
                             ]
                         })
