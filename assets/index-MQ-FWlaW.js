@@ -30116,42 +30116,42 @@ const s4 = "https://qqfvezowcmcgpsvmuhuw.supabase.co",
         [o, a] = S.useState(!1);
 
     S.useEffect(() => {
-       const fetchFees = async () => {
-    a(!0);
-    try {
-        // Use CORS proxy for Bags API
-        const feesUrl = "https://api2.bags.fm/api/v1/token-launch/lifetime-fees?tokenMint=H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS";
-        const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(feesUrl)}`;
-        
-        const feesResponse = await fetch(proxyUrl);
-        if (!feesResponse.ok) throw new Error("Failed to fetch fees");
-        const feesData = await feesResponse.json();
-        
-        if (feesData.success) {
-            // Convert lamports to SOL
-            const lamports = parseFloat(feesData.response);
-            const solAmount = lamports / 1000000000;
-            
-            // Get SOL price from CoinGecko (no CORS issues)
-            const priceResponse = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
-            const priceData = await priceResponse.json();
-            const solPriceUsd = priceData.solana?.usd;
-            
-            const usdAmount = solAmount * solPriceUsd;
-            
-            r({
-                solAmount: solAmount,
-                usdAmount: usdAmount,
-                solPrice: solPriceUsd,
-                lamports: lamports
-            });
-        }
-    } catch (err) {
-        console.error("Failed to fetch:", err);
-    } finally {
-        a(!1);
-    }
-};
+        const fetchFees = async () => {
+            a(!0);
+            try {
+                // 1. Fetch lifetime fees from Bags API
+                const feesResponse = await fetch("https://api2.bags.fm/api/v1/token-launch/lifetime-fees?tokenMint=H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS");
+                if (!feesResponse.ok) throw new Error("Failed to fetch fees");
+                const feesData = await feesResponse.json();
+                
+                if (!feesData.success) throw new Error("Invalid fees response");
+                
+                // Convert lamports to SOL (1 SOL = 1,000,000,000 lamports)
+                const lamports = parseFloat(feesData.response);
+                const solAmount = lamports / 1000000000;
+                
+                // 2. Fetch current SOL price from CoinGecko
+                const priceResponse = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd");
+                if (!priceResponse.ok) throw new Error("Failed to fetch SOL price");
+                const priceData = await priceResponse.json();
+                const solPriceUsd = priceData.solana?.usd;
+                
+                if (!solPriceUsd) throw new Error("Invalid price response");
+                
+                const usdAmount = solAmount * solPriceUsd;
+                
+                r({
+                    solAmount: solAmount,
+                    usdAmount: usdAmount,
+                    solPrice: solPriceUsd,
+                    lamports: lamports
+                });
+            } catch (err) {
+                console.error("Failed to fetch:", err);
+            } finally {
+                a(!1);
+            }
+        };
         
         fetchFees();
         const interval = setInterval(fetchFees, 60000);
