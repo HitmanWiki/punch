@@ -30428,7 +30428,7 @@ l4 = () => {
                                     h.jsxs(D.div, { className: "relative order-2 md:order-1", initial: { opacity: 0, scale: .95 }, animate: t ? { opacity: 1, scale: 1 } : {}, transition: { duration: .8, delay: .6 }, children: [
                                         h.jsxs("div", { className: "bg-cream p-3 pb-12 rounded-lg paper-shadow transform hover:rotate-1 transition-transform duration-500", children: [
                                             h.jsx("img", { src: "https://punch-orcin-eight.vercel.app/assets/punch-gallery-2-D-zmw03b.jpg", alt: "Punch going viral on social media", className: "w-full aspect-square object-cover rounded" }),
-                                            h.jsx("p", { className: "absolute bottom-4 left-0 right-0 text-center font-storybook text-cardboard-dark text-sm", children: "#PunchOnSol 🌐" })
+                                            h.jsx("p", { className: "absolute bottom-4 left-0 right-0 text-center font-storybook text-cardboard-dark text-sm", children: "#PunchOnBags 🌐" })
                                         ] }),
                                         h.jsx("div", { className: "absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-6 bg-cream/80 transform rotate-2 rounded-sm opacity-70" })
                                     ] }),
