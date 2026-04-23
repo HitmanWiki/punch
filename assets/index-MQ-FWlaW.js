@@ -31509,7 +31509,7 @@ const u4 = ({
             }), h.jsxs("div", {
                 className: "flex items-center justify-center gap-6 mb-8",
                 children: [h.jsx("a", {
-                    href: "https://www.geckoterminal.com/solana/pools/g4u9epnsyx2kfdlqex9k7q86dgse7kwkqlracpmpiegr",
+                    href: "https://www.geckoterminal.com/solana/pools/G4u9ePNSYX2KfdLqEx9K7q86dgSE7kwKqLRAcPmPiegR",
                     target: "_blank",
                     rel: "noopener noreferrer",
                     className: "w-12 h-12 rounded-full overflow-hidden hover:scale-110 transition-transform duration-200",
