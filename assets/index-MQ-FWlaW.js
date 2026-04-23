@@ -30207,6 +30207,7 @@ a4 = () => {
     const lastUpdated = new Date();
     
     return h.jsxs("div", {
+         id: "donations",  // ADD THIS LINE - for navigation scrolling
         className: "relative max-w-3xl mx-auto",
         children: [
             h.jsx("div", {
@@ -30334,6 +30335,7 @@ l4 = () => {
             margin: "-100px"
         });
     return h.jsx("section", {
+         id: "punch-story",  // Add this lines
         ref: e,
         className: "relative py-24 px-6",
         children: h.jsxs("div", {
@@ -31770,67 +31772,80 @@ const u4 = ({
         }) : null
     },
     Na = () => {
-        const e = Fi(),
-            [t, n] = S.useState(!0),
-            [r, s] = S.useState(0),
-            {
-                scrollY: i
-            } = SD();
-        rD(i, "change", a => {
-            const l = a > r ? "down" : "up";
-            l === "up" || a < 50 ? n(!0) : l === "down" && a > 100 && n(!1), s(a)
-        });
-        const o = [{
-            to: "/",
-            icon: gb,
-            label: "パンチ"
-        }, 
-        // {
-        //     to: "/story",
-        //     icon: wb,
-        //     label: "Story"
-        // }, 
-        // {
-        //     to: "/pfp",
-        //     icon: LC,
-        //     label: "PFP"
-        // }
+    const e = Fi(),
+        [t, n] = S.useState(!0),
+        [r, s] = S.useState(0),
+        {
+            scrollY: i
+        } = SD();
+    
+    rD(i, "change", a => {
+        const l = a > r ? "down" : "up";
+        l === "up" || a < 50 ? n(!0) : l === "down" && a > 100 && n(!1), s(a)
+    });
+    
+    // Smooth scroll to section function
+    const scrollToSection = (sectionId) => {
+        const section = document.getElementById(sectionId);
+        if (section) {
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+    };
+    
+    const o = [
+        { to: "/", icon: gb, label: "パンチ", type: "link" },
+        { action: () => scrollToSection("punch-story"), icon: wb, label: "Story", type: "action" },
+        { action: () => scrollToSection("how-to-buy"), icon: vb, label: "Buy", type: "action" },
+        { action: () => scrollToSection("donations"), icon: Ot, label: "Donation", type: "action" }
     ];
-        return h.jsx(D.nav, {
-            className: "fixed top-0 left-0 right-0 z-40 px-4 py-3",
-            initial: {
-                opacity: 0,
-                y: -20
-            },
-            animate: {
-                opacity: t ? 1 : 0,
-                y: t ? 0 : -60
-            },
-            transition: {
-                duration: .3,
-                ease: "easeInOut"
-            },
+    
+    return h.jsx(D.nav, {
+        className: "fixed top-0 left-0 right-0 z-40 px-4 py-3",
+        initial: {
+            opacity: 0,
+            y: -20
+        },
+        animate: {
+            opacity: t ? 1 : 0,
+            y: t ? 0 : -60
+        },
+        transition: {
+            duration: .3,
+            ease: "easeInOut"
+        },
+        children: h.jsx("div", {
+            className: "max-w-4xl mx-auto",
             children: h.jsx("div", {
-                className: "max-w-4xl mx-auto",
-                children: h.jsx("div", {
-                    className: "flex items-center justify-center gap-2 bg-cream/80 backdrop-blur-sm rounded-full px-4 py-2 paper-shadow w-fit mx-auto",
-                    children: o.map(a => {
+                className: "flex items-center justify-center gap-2 bg-cream/80 backdrop-blur-sm rounded-full px-4 py-2 paper-shadow w-fit mx-auto flex-wrap",
+                children: o.map(a => {
+                    // For home link
+                    if (a.type === "link") {
                         const l = e.pathname === a.to;
                         return h.jsxs(Ar, {
                             to: a.to,
-                            className: `flex items-center gap-2 px-4 py-2 rounded-full font-body text-sm transition-all duration-300 ${l?"bg-forest text-cream":"text-forest-dark hover:bg-forest-light/30"}`,
-                            children: [h.jsx(a.icon, {
-                                className: "w-4 h-4"
-                            }), h.jsx("span", {
-                                className: "hidden sm:inline",
-                                children: a.label
-                            })]
-                        }, a.to)
-                    })
+                            className: `flex items-center gap-2 px-4 py-2 rounded-full font-body text-sm transition-all duration-300 ${l ? "bg-forest text-cream" : "text-forest-dark hover:bg-forest-light/30"}`,
+                            children: [
+                                h.jsx(a.icon, { className: "w-4 h-4" }),
+                                h.jsx("span", { className: "hidden sm:inline", children: a.label })
+                            ]
+                        }, a.to);
+                    }
+                    // For action buttons (scroll to section on same page)
+                    else {
+                        return h.jsxs("button", {
+                            onClick: a.action,
+                            className: `flex items-center gap-2 px-4 py-2 rounded-full font-body text-sm transition-all duration-300 text-forest-dark hover:bg-forest-light/30`,
+                            children: [
+                                h.jsx(a.icon, { className: "w-4 h-4" }),
+                                h.jsx("span", { className: "hidden sm:inline", children: a.label })
+                            ]
+                        }, a.label);
+                    }
                 })
             })
         })
-    },
+    });
+},
     P4 = () => h.jsxs("div", {
         className: "relative min-h-screen overflow-x-hidden",
         children: [h.jsx(Aa, {}), h.jsx(Na, {}), h.jsx(E4, {}), h.jsx(C4, {}), h.jsxs("main", {
