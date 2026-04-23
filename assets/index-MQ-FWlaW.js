@@ -31195,176 +31195,146 @@ const u4 = ({
         })
     },
     g4 = () => {
-        const e = S.useRef(null),
-            t = bs(e, {
-                once: !0,
-                margin: "-100px"
+    const e = S.useRef(null),
+        t = bs(e, {
+            once: !0,
+            margin: "-100px"
+        }),
+        n = [{
+            name: "X ",
+            icon: UC,
+            href: "https://x.com/PunchOnBags",
+            color: "bg-forest hover:bg-forest-dark",
+            desc: "Follow Punch's journey"
+        }, {
+            name: "TikTok",
+            icon: () => h.jsx("svg", {
+                viewBox: "0 0 24 24",
+                fill: "currentColor",
+                className: "w-7 h-7 text-cream",
+                children: h.jsx("path", {
+                    d: "M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V8.75a8.18 8.18 0 0 0 3.76.92V6.69Z"
+                })
             }),
-            n = [{
-                name: "X ",
-                icon: UC,
-                href: "https://x.com/PunchOnBags",
-                color: "bg-forest hover:bg-forest-dark",
-                desc: "Follow Punch's journey"
-            }, {
-                name: "TikTok",
-                icon: () => h.jsx("svg", {
-                    viewBox: "0 0 24 24",
-                    fill: "currentColor",
-                    className: "w-7 h-7 text-cream",
-                    children: h.jsx("path", {
-                        d: "M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V8.75a8.18 8.18 0 0 0 3.76.92V6.69Z"
-                    })
-                }),
-                href: "https://www.tiktok.com/@kosuke.shikano",
-                color: "bg-forest hover:bg-forest-dark",
-                desc: "Watch Punch's videos"
-            }];
-        return h.jsx("section", {
-            ref: e,
-            className: "relative py-24 px-6",
-            children: h.jsxs("div", {
-                className: "max-w-4xl mx-auto",
-                children: [h.jsxs(D.div, {
-                    className: "text-center mb-16",
+            href: "https://www.tiktok.com/@kosuke.shikano",
+            color: "bg-forest hover:bg-forest-dark",
+            desc: "Watch Punch's videos"
+        }, {
+            name: "Telegram",
+            icon: () => h.jsx("svg", {
+                viewBox: "0 0 24 24",
+                fill: "currentColor",
+                className: "w-7 h-7 text-cream",
+                children: h.jsx("path", {
+                    d: "M20.665 3.717L2.789 10.5c-1.08.434-1.076 1.036-.198 1.304l4.625 1.444 1.782 5.412c.217.666.113.93.664.93.35 0 .504-.154.7-.35l3.276-3.15 5.043 3.716c.925.51 1.59.246 1.821-.856l3.236-15.259c.324-1.303-.498-1.893-1.443-1.506z"
+                })
+            }),
+            href: "https://t.me/PunchOnBags",
+            color: "bg-forest hover:bg-forest-dark",
+            desc: "Join the community chat"
+        }];
+    return h.jsx("section", {
+        ref: e,
+        className: "relative py-24 px-6",
+        children: h.jsxs("div", {
+            className: "max-w-4xl mx-auto",
+            children: [h.jsxs(D.div, {
+                className: "text-center mb-16",
+                initial: {
+                    opacity: 0,
+                    y: 30
+                },
+                animate: t ? {
+                    opacity: 1,
+                    y: 0
+                } : {},
+                transition: {
+                    duration: .8
+                },
+                children: [h.jsx("h2", {
+                    className: "font-storybook text-4xl md:text-5xl text-forest-dark mb-4",
+                    children: "Join the Sanctuary 🌿"
+                }), h.jsx("p", {
+                    className: "font-body text-lg text-muted-foreground max-w-xl mx-auto",
+                    children: "Be part of the coziest community On Bags"
+                })]
+            }), h.jsx("div", {
+                className: "flex flex-col md:flex-row items-center justify-center gap-6",
+                children: n.map((r, s) => h.jsxs(D.a, {
+                    href: r.href,
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                    className: "relative group w-full md:w-auto",
                     initial: {
                         opacity: 0,
-                        y: 30
+                        y: 30,
+                        rotate: s % 2 === 0 ? -2 : 2
                     },
                     animate: t ? {
                         opacity: 1,
-                        y: 0
-                    } : {},
-                    transition: {
-                        duration: .8
-                    },
-                    children: [h.jsx("h2", {
-                        className: "font-storybook text-4xl md:text-5xl text-forest-dark mb-4",
-                        children: "Join the Sanctuary 🌿"
-                    }), h.jsx("p", {
-                        className: "font-body text-lg text-muted-foreground max-w-xl mx-auto",
-                        children: "Be part of the coziest community On Bags"
-                    })]
-                }), h.jsx("div", {
-                    className: "flex flex-col md:flex-row items-center justify-center gap-6",
-                    children: n.map((r, s) => h.jsxs(D.a, {
-                        href: r.href,
-                        target: "_blank",
-                        rel: "noopener noreferrer",
-                        className: "relative group w-full md:w-auto",
-                        initial: {
-                            opacity: 0,
-                            y: 30,
-                            rotate: s % 2 === 0 ? -2 : 2
-                        },
-                        animate: t ? {
-                            opacity: 1,
-                            y: 0,
-                            rotate: s % 2 === 0 ? -2 : 2
-                        } : {},
-                        transition: {
-                            duration: .6,
-                            delay: s * .15
-                        },
-                        whileHover: {
-                            rotate: 0,
-                            y: -5,
-                            scale: 1.02
-                        },
-                        children: [h.jsx("div", {
-                            className: "absolute inset-0 bg-cardboard-dark rounded-xl transform translate-y-1 translate-x-0.5"
-                        }), h.jsx("div", {
-                            className: `relative ${r.color} rounded-xl p-6 paper-shadow transition-colors duration-300`,
-                            children: h.jsxs("div", {
-                                className: "flex flex-col items-center text-center",
-                                children: [h.jsx("div", {
-                                    className: "w-14 h-14 bg-cream/20 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300",
-                                    children: h.jsx(r.icon, {
-                                        className: "w-7 h-7 text-cream"
-                                    })
-                                }), h.jsx("h3", {
-                                    className: "font-storybook text-xl text-cream mb-1",
-                                    children: r.name
-                                }), h.jsx("p", {
-                                    className: "font-body text-sm text-cream/80",
-                                    children: r.desc
-                                })]
-                            })
-                        })]
-                    }, r.name))
-                }), h.jsx(D.div, {
-                    className: "flex justify-center mt-8",
-                    initial: {
-                        opacity: 0,
-                        y: 20
-                    },
-                    animate: t ? {
-                        opacity: 1,
-                        y: 0
+                        y: 0,
+                        rotate: s % 2 === 0 ? -2 : 2
                     } : {},
                     transition: {
                         duration: .6,
-                        delay: .5
+                        delay: s * .15
                     },
-                    // children:
-                    //  h.jsxs(Ar, {
-                    //     to: "/photo-booth",
-                    //     className: "relative group",
-                    //     children: [h.jsx("div", {
-                    //         className: "absolute inset-0 bg-cardboard-dark rounded-xl transform translate-y-1 translate-x-0.5"
-                    //     }), h.jsx("div", {
-                    //         className: "relative bg-primary hover:bg-primary/90 rounded-xl px-8 py-5 paper-shadow transition-colors duration-300",
-                    //         children: h.jsxs("div", {
-                    //             className: "flex items-center gap-4 text-cream",
-                    //             children: [h.jsx("div", {
-                    //                 className: "w-12 h-12 bg-cream/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300",
-                    //                 children: h.jsx(mb, {
-                    //                     className: "w-6 h-6"
-                    //                 })
-                    //             }), h.jsxs("div", {
-                    //                 className: "text-left",
-                    //                 children: [h.jsx("h3", {
-                    //                     className: "font-storybook text-xl",
-                    //                     children: "Photo Booth 📸"
-                    //                 }), h.jsx("p", {
-                    //                     className: "font-body text-sm text-cream/80",
-                    //                     children: "Take a photo with Punch!"
-                    //                 })]
-                    //             })]
-                    //         })
-                    //     })]
-                    // })
-                }), 
-                h.jsx(D.div, {
-                    className: "text-center mt-16",
-                    initial: {
-                        opacity: 0
+                    whileHover: {
+                        rotate: 0,
+                        y: -5,
+                        scale: 1.02
                     },
-                    animate: t ? {
-                        opacity: 1
-                    } : {},
-                    transition: {
-                        duration: .8,
-                        delay: .6
-                    },
-                    children: h.jsxs("div", {
-                        className: "inline-flex items-center gap-2 px-6 py-3 bg-cream rounded-full paper-shadow",
-                        children: [h.jsx(Ot, {
-                            className: "w-5 h-5 text-mushroom fill-current animate-float-gentle"
-                        }), h.jsx("span", {
-                            className: "font-storybook text-cardboard-dark",
-                            children: "Be part of the coziest community On Bags"
-                        }), h.jsx(Ot, {
-                            className: "w-5 h-5 text-mushroom fill-current animate-float-gentle",
-                            style: {
-                                animationDelay: "0.5s"
-                            }
-                        })]
-                    })
-                })]
-            })
+                    children: [h.jsx("div", {
+                        className: "absolute inset-0 bg-cardboard-dark rounded-xl transform translate-y-1 translate-x-0.5"
+                    }), h.jsx("div", {
+                        className: `relative ${r.color} rounded-xl p-6 paper-shadow transition-colors duration-300`,
+                        children: h.jsxs("div", {
+                            className: "flex flex-col items-center text-center",
+                            children: [h.jsx("div", {
+                                className: "w-14 h-14 bg-cream/20 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300",
+                                children: h.jsx(r.icon, {
+                                    className: "w-7 h-7 text-cream"
+                                })
+                            }), h.jsx("h3", {
+                                className: "font-storybook text-xl text-cream mb-1",
+                                children: r.name
+                            }), h.jsx("p", {
+                                className: "font-body text-sm text-cream/80",
+                                children: r.desc
+                            })]
+                        })
+                    })]
+                }, r.name))
+            }), h.jsx(D.div, {
+                className: "text-center mt-16",
+                initial: {
+                    opacity: 0
+                },
+                animate: t ? {
+                    opacity: 1
+                } : {},
+                transition: {
+                    duration: .8,
+                    delay: .6
+                },
+                children: h.jsxs("div", {
+                    className: "inline-flex items-center gap-2 px-6 py-3 bg-cream rounded-full paper-shadow",
+                    children: [h.jsx(Ot, {
+                        className: "w-5 h-5 text-mushroom fill-current animate-float-gentle"
+                    }), h.jsx("span", {
+                        className: "font-storybook text-cardboard-dark",
+                        children: "Be part of the coziest community On Bags"
+                    }), h.jsx(Ot, {
+                        className: "w-5 h-5 text-mushroom fill-current animate-float-gentle",
+                        style: {
+                            animationDelay: "0.5s"
+                        }
+                    })]
+                })
+            })]
         })
-    },
+    });
+},
     y4 = "/assets/punch-gallery-4-B-UUSxWb.jpg",
     v4 = "",
     w4 = "",
