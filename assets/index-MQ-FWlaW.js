@@ -30864,15 +30864,15 @@ const u4 = ({
                         duration: .8,
                         delay: .8
                     },
-                    children: h.jsxs("a", {
-                        href: "https://x.com/i/communities/1853720437118947416",
-                        target: "_blank",
-                        rel: "noopener noreferrer",
-                        className: "inline-flex items-center gap-2 px-6 py-3 bg-forest text-cream rounded-full font-storybook text-lg hover:bg-forest-dark transition-colors duration-300 paper-shadow hover:scale-105 transform",
-                        children: [h.jsx(mb, {
-                            className: "w-5 h-5"
-                        }), "Follow Punch on X"]
-                    })
+                    // children: h.jsxs("a", {
+                    //     href: "https://x.com/i/communities/1853720437118947416",
+                    //     target: "_blank",
+                    //     rel: "noopener noreferrer",
+                    //     className: "inline-flex items-center gap-2 px-6 py-3 bg-forest text-cream rounded-full font-storybook text-lg hover:bg-forest-dark transition-colors duration-300 paper-shadow hover:scale-105 transform",
+                    //     children: [h.jsx(mb, {
+                    //         className: "w-5 h-5"
+                    //     }), "Follow Punch on X"]
+                    // })
                 })]
             })
         })
