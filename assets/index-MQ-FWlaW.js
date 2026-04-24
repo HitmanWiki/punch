@@ -31081,7 +31081,7 @@ const u4 = ({
             }, {
                 icon: Qo,
                 label: "Tax",
-                value: "0%",
+                value: "2%",
                 detail: "No buy/sell tax",
                 color: "bg-cardboard"
             }, {
