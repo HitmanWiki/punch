@@ -22597,7 +22597,7 @@ const Aa = () => {
                     delay: .5,
                     duration: .8
                 },
-                children: "Not all legends start strong."
+                children: ""
             }), h.jsxs(D.div, {
                 className: "flex items-center justify-center gap-2 text-mushroom",
                 initial: {
@@ -22616,7 +22616,7 @@ const Aa = () => {
                     className: "w-5 h-5 fill-current animate-float-gentle"
                 }), h.jsx("span", {
                     className: "font-body text-lg text-muted-foreground",
-                    children: "Punch wasn’t supposed to make it."
+                    children: "Not all legends start strong."
                 }), h.jsx(Ot, {
                     className: "w-5 h-5 fill-current animate-float-gentle",
                     style: {
@@ -30878,188 +30878,100 @@ const u4 = ({
         })
     },
     p4 = () => {
-        const e = S.useRef(null),
-            t = bs(e, {
-                once: !0,
-                margin: "-100px"
-            }),
-            [n, r] = S.useState(!1),
-            s = "H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS",
-            i = () => {
-                navigator.clipboard.writeText(s), r(!0), Th.success("Contract address copied!"), setTimeout(() => r(!1), 2e3)
-            },
-            o = [{
-                icon: Dg,
-                title: "Get a Wallet",
-                desc: "Download Phantom or your preferred Solana wallet"
-            }, {
-                icon: vb,
-                title: "Get SOL",
-                desc: "Buy SOL on an exchange and transfer to your wallet"
-            }, {
-                icon: kC,
-                title: "Swap for $PUNCH",
-                desc: "Use a DEX to swap your SOL for $PUNCH"
-            }, {
-                icon: Lg,
-                title: "Welcome to the Sanctuary!",
-                desc: "You're now part of the Punch community 🐵"
-            }];
-        return h.jsx("section", {
-            id: "how-to-buy",
-            ref: e,
-            className: "relative py-24 px-6",
-            children: h.jsxs("div", {
-                className: "max-w-5xl mx-auto",
-                children: [h.jsxs(D.div, {
-                    className: "text-center mb-16",
-                    initial: {
-                        opacity: 0,
-                        y: 30
-                    },
-                    animate: t ? {
-                        opacity: 1,
-                        y: 0
-                    } : {},
-                    transition: {
-                        duration: .8
-                    },
-                    children: [h.jsx("h2", {
-                        className: "font-storybook text-4xl md:text-5xl text-forest-dark mb-4",
-                        children: "How to Buy $PUNCH 🛒"
-                    }), h.jsx("p", {
-                        className: "font-body text-lg text-muted-foreground max-w-xl mx-auto",
-                        children: "Four simple steps to join the sanctuary"
-                    })]
-                }), h.jsx("div", {
-                    className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12",
-                    children: o.map((a, l) => h.jsxs(D.div, {
-                        className: "relative",
-                        initial: {
-                            opacity: 0,
-                            y: 30
-                        },
-                        animate: t ? {
-                            opacity: 1,
-                            y: 0
-                        } : {},
-                        transition: {
-                            duration: .6,
-                            delay: l * .15
-                        },
-                        children: [h.jsxs("div", {
-                            className: "relative bg-cream rounded-2xl p-6 paper-shadow hover:scale-105 transition-transform duration-300 h-full",
-                            children: [h.jsx("div", {
-                                className: "absolute -top-3 -left-2 w-10 h-10 bg-mushroom rounded-full flex items-center justify-center text-cream font-storybook text-lg paper-shadow",
-                                children: l + 1
-                            }), h.jsx("div", {
-                                className: "w-14 h-14 bg-forest-light/20 rounded-xl flex items-center justify-center mb-4 mt-2",
-                                children: h.jsx(a.icon, {
-                                    className: "w-7 h-7 text-forest"
-                                })
-                            }), h.jsx("h3", {
-                                className: "font-storybook text-xl text-forest-dark mb-2",
-                                children: a.title
-                            }), h.jsx("p", {
-                                className: "font-body text-muted-foreground text-sm",
-                                children: a.desc
-                            })]
-                        }), l < o.length - 1 && h.jsx("div", {
-                            className: "hidden lg:block absolute top-1/2 -right-4 transform -translate-y-1/2 text-cardboard text-2xl",
-                            children: "→"
-                        })]
-                    }, l))
-                }), h.jsxs(D.div, {
-                    className: "relative max-w-2xl mx-auto",
-                    initial: {
-                        opacity: 0,
-                        y: 30
-                    },
-                    animate: t ? {
-                        opacity: 1,
-                        y: 0
-                    } : {},
-                    transition: {
-                        duration: .8,
-                        delay: .6
-                    },
-                    children: [h.jsx("div", {
-                        className: "absolute -inset-1 bg-cardboard-light rounded-2xl transform rotate-0.5"
-                    }), h.jsxs("div", {
-                        className: "relative bg-cream rounded-xl p-6 paper-shadow",
-                        children: [h.jsx("p", {
-                            className: "font-storybook text-lg text-forest-dark text-center mb-4",
-                            children: "Contract Address (CA)"
-                        }), h.jsxs("div", {
-                            className: "flex items-center gap-3 bg-cream-dark rounded-lg p-4",
-                            children: [h.jsx("code", {
-                                className: "flex-1 font-mono text-sm text-cardboard-dark break-all",
-                                children: s
-                            }), h.jsx("button", {
-                                onClick: i,
-                                className: "flex-shrink-0 p-2 bg-forest text-cream rounded-lg hover:bg-forest-dark transition-colors",
-                                title: "Copy address",
-                                children: n ? h.jsx(Lg, {
-                                    className: "w-5 h-5"
-                                }) : h.jsx(RC, {
-                                    className: "w-5 h-5"
-                                })
-                            })]
-                        })]
-                    })]
-                }), h.jsxs(D.div, {
-                    className: "flex flex-wrap items-center justify-center gap-4 mt-8",
-                    initial: {
-                        opacity: 0
-                    },
-                    animate: t ? {
-                        opacity: 1
-                    } : {},
-                    transition: {
-                        duration: .8,
-                        delay: .8
-                    },
-                    children: [h.jsxs("a", {
-                        href: "https://phantom.app",
-                        target: "_blank",
-                        rel: "noopener noreferrer",
-                        className: "inline-flex items-center gap-2 px-5 py-2.5 bg-[#AB9FF2] text-white rounded-full font-body hover:bg-[#9580FF] transition-colors paper-shadow",
-                        children: [h.jsx(Dg, {
-                            className: "w-4 h-4"
-                        }), "Get Phantom"]
-                    }), h.jsxs("a", {
-                        href: "https://bags.fm/H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS",
-                        target: "_blank",
-                        rel: "noopener noreferrer",
-                        className: "inline-flex items-center gap-2 px-5 py-2.5 bg-[#464AB6] text-white rounded-full font-body hover:bg-[#3a3e9e] transition-colors paper-shadow",
-                        children: [h.jsx(_o, {
-                            className: "w-4 h-4"
-                        }), "Buy on Bags"]
-                    }), h.jsxs("a", {
-                        href: "https://dexscreener.com/solana/H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS",
-                        target: "_blank",
-                        rel: "noopener noreferrer",
-                        className: "inline-flex items-center gap-2 px-5 py-2.5 bg-[#1C1C28] text-white rounded-full font-body hover:bg-[#2a2a3a] transition-colors paper-shadow",
-                        children: [h.jsx(_o, {
-                            className: "w-4 h-4"
-                        }), "DexScreener"]
-                    }), 
-                    
-                    // h.jsxs("a", {
-                    //     href: "https://bags.fm/H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS",
-                    //     target: "_blank",
-                    //     rel: "noopener noreferrer",
-                    //     className: "inline-flex items-center gap-2 px-5 py-2.5 bg-mushroom text-cream rounded-full font-body hover:bg-mushroom/80 transition-colors paper-shadow",
-                    //     children: [h.jsx(_o, {
-                    //         className: "w-4 h-4"
-                    //     }), "Buy on Bags"]
-                    // })
-                
+    const e = S.useRef(null),
+        t = bs(e, {
+            once: !0,
+            margin: "-100px"
+        }),
+        [n, r] = S.useState(!1),
+        s = "H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS",
+        i = () => {
+            navigator.clipboard.writeText(s), r(!0), Th.success("Contract address copied!"), setTimeout(() => r(!1), 2e3)
+        },
+        o = [{
+            icon: Dg,
+            title: "Get a Wallet",
+            desc: "Download Phantom or your preferred Solana wallet"
+        }, {
+            icon: vb,
+            title: "Get SOL",
+            desc: "Buy SOL on an exchange and transfer to your wallet"
+        }, {
+            icon: kC,
+            title: "Swap for $PUNCH",
+            desc: "Use a DEX to swap your SOL for $PUNCH"
+        }, {
+            icon: Lg,
+            title: "Welcome to the Sanctuary!",
+            desc: "You're now part of the Punch community 🐵"
+        }];
+    return h.jsx("section", {
+        id: "how-to-buy",
+        ref: e,
+        className: "relative py-24 px-6",
+        children: h.jsxs("div", {
+            className: "max-w-5xl mx-auto",
+            children: [h.jsxs(D.div, {
+                className: "text-center mb-16",
+                initial: { opacity: 0, y: 30 },
+                animate: t ? { opacity: 1, y: 0 } : {},
+                transition: { duration: .8 },
+                children: [
+                    h.jsx("h2", { className: "font-storybook text-4xl md:text-5xl text-forest-dark mb-4", children: "How to Buy $PUNCH 🛒" }),
+                    h.jsx("p", { className: "font-body text-lg text-muted-foreground max-w-xl mx-auto", children: "Four simple steps to join the sanctuary" })
                 ]
-                })]
-            })
+            }), h.jsx("div", {
+                className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 relative",
+                children: o.map((a, l) => {
+                    return h.jsxs("div", {
+                        className: "relative",
+                        children: [
+                            h.jsxs("div", {
+                                className: "relative bg-cream rounded-2xl p-6 paper-shadow hover:scale-105 transition-transform duration-300 h-full",
+                                children: [
+                                    h.jsx("div", { className: "absolute -top-3 -left-2 w-10 h-10 bg-mushroom rounded-full flex items-center justify-center text-cream font-storybook text-lg paper-shadow", children: l + 1 }),
+                                    h.jsx("div", { className: "w-14 h-14 bg-forest-light/20 rounded-xl flex items-center justify-center mb-4 mt-2", children: h.jsx(a.icon, { className: "w-7 h-7 text-forest" }) }),
+                                    h.jsx("h3", { className: "font-storybook text-xl text-forest-dark mb-2", children: a.title }),
+                                    h.jsx("p", { className: "font-body text-muted-foreground text-sm", children: a.desc })
+                                ]
+                            }),
+                            // Arrow between cards - only show on large screens and not on the last card
+                            l < o.length - 1 && h.jsx("div", {
+                                className: "hidden lg:block absolute top-1/2 -right-6 transform -translate-y-1/2 text-cardboard-dark text-2xl z-10",
+                                children: "→"
+                            }, `arrow-${l}`)
+                        ]
+                    }, l);
+                })
+            }), h.jsxs(D.div, {
+                className: "relative max-w-2xl mx-auto",
+                initial: { opacity: 0, y: 30 },
+                animate: t ? { opacity: 1, y: 0 } : {},
+                transition: { duration: .8, delay: .6 },
+                children: [
+                    h.jsx("div", { className: "absolute -inset-1 bg-cardboard-light rounded-2xl transform rotate-0.5" }),
+                    h.jsxs("div", { className: "relative bg-cream rounded-xl p-6 paper-shadow", children: [
+                        h.jsx("p", { className: "font-storybook text-lg text-forest-dark text-center mb-4", children: "Contract Address (CA)" }),
+                        h.jsxs("div", { className: "flex items-center gap-3 bg-cream-dark rounded-lg p-4", children: [
+                            h.jsx("code", { className: "flex-1 font-mono text-sm text-cardboard-dark break-all", children: s }),
+                            h.jsx("button", { onClick: i, className: "flex-shrink-0 p-2 bg-forest text-cream rounded-lg hover:bg-forest-dark transition-colors", title: "Copy address", children: n ? h.jsx(Lg, { className: "w-5 h-5" }) : h.jsx(RC, { className: "w-5 h-5" }) })
+                        ] })
+                    ] })
+                ]
+            }), h.jsxs(D.div, {
+                className: "flex flex-wrap items-center justify-center gap-4 mt-8",
+                initial: { opacity: 0 },
+                animate: t ? { opacity: 1 } : {},
+                transition: { duration: .8, delay: .8 },
+                children: [
+                    h.jsxs("a", { href: "https://phantom.app", target: "_blank", rel: "noopener noreferrer", className: "inline-flex items-center gap-2 px-5 py-2.5 bg-[#AB9FF2] text-white rounded-full font-body hover:bg-[#9580FF] transition-colors paper-shadow", children: [h.jsx(Dg, { className: "w-4 h-4" }), "Get Phantom"] }),
+                    h.jsxs("a", { href: "https://bags.fm/H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS", target: "_blank", rel: "noopener noreferrer", className: "inline-flex items-center gap-2 px-5 py-2.5 bg-[#464AB6] text-white rounded-full font-body hover:bg-[#3a3e9e] transition-colors paper-shadow", children: [h.jsx(_o, { className: "w-4 h-4" }), "Buy on Bags"] }),
+                    h.jsxs("a", { href: "https://dexscreener.com/solana/H1CknM7TXz134nY5YT7KUYG6fL2Egn4ieLyzkTk7BAGS", target: "_blank", rel: "noopener noreferrer", className: "inline-flex items-center gap-2 px-5 py-2.5 bg-[#1C1C28] text-white rounded-full font-body hover:bg-[#2a2a3a] transition-colors paper-shadow", children: [h.jsx(_o, { className: "w-4 h-4" }), "DexScreener"] })
+                ]
+            })]
         })
-    },
+    });
+},
     m4 = () => {
         const e = S.useRef(null),
             t = bs(e, {
@@ -31082,7 +30994,7 @@ const u4 = ({
                 icon: Qo,
                 label: "Tax",
                 value: "2%",
-                detail: "No buy/sell tax",
+                detail: "buy/sell tax",
                 color: "bg-cardboard"
             }, {
                 icon: yp,
